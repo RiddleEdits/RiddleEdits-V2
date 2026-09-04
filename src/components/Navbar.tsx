@@ -23,7 +23,7 @@ export default function Navbar() {
             <img
               alt="RiddleEdits"
               className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover"
-              src="/riddle-avatar.png"
+              src={`${import.meta.env.BASE_URL}riddle-avatar.png`}
               referrerPolicy="no-referrer"
             />
             <span className="font-bold text-base text-secondary hidden sm:block">
