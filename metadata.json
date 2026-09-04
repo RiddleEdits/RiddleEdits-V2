@@ -1,0 +1,7 @@
+{
+  "name": "RiddleEdits — Video Editor",
+  "description": "RiddleEdits — Professional video editor portfolio for creators who want to stand out.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
