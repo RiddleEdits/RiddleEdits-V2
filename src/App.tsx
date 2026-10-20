@@ -1,61 +1,61 @@
-import { useEffect } from 'react';
-import { CustomCursor } from './components/CustomCursor';
+import React from 'react';
+import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
 import Navbar from './components/Navbar';
-import { Hero } from './components/Hero';
-import { Clients } from './components/Clients';
-import { WorkSection } from './components/WorkSection';
-import { Testimonials } from './components/Testimonials';
-import { FinalCTA } from './components/FinalCTA';
 import { Footer } from './components/Footer';
+import { CustomCursor } from './components/CustomCursor';
 import { BackToTop } from './components/BackToTop';
+import HomePage from './pages/HomePage';
+import WorkPage from './pages/WorkPage';
+import CaseStudiesPage from './pages/CaseStudiesPage';
+import CaseStudyDetailPage from './pages/CaseStudyDetailPage';
+import ContactPage from './pages/ContactPage';
 
-export default function App() {
-  useEffect(() => {
-    // Intersection Observer for scroll reveals
-    const revealEls = document.querySelectorAll(
-      '.reveal, .reveal-left, .reveal-right, .reveal-scale'
-    );
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -50px 0px' }
-    );
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 
-    revealEls.forEach((el) => observer.observe(el));
-
-    return () => {
-      revealEls.forEach((el) => observer.unobserve(el));
-    };
-  }, []);
-
+function AnimatedRoutes() {
+  const location = useLocation();
   return (
-    <div className="relative min-h-screen bg-[#0a0a0a] text-white">
-      {/* Custom Physics Mouse Cursor */}
-      <CustomCursor />
-
-      {/* Fixed Top Floating Pill Navbar */}
-      <Navbar />
-
-      {/* Main Content */}
-      <main>
-        <Hero />
-        <Clients />
-        <WorkSection />
-        <Testimonials />
-        <FinalCTA />
-      </main>
-
-      {/* Footer */}
-      <Footer />
-
-      {/* Floating Back-To-Top Button */}
-      <BackToTop />
-    </div>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location.pathname}
+        initial={{ opacity: 0, y: 14 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Routes location={location}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/work" element={<WorkPage />} />
+          <Route path="/case-studies" element={<CaseStudiesPage />} />
+          <Route path="/case-studies/:slug" element={<CaseStudyDetailPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="*" element={<HomePage />} />
+        </Routes>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 
+export default function App() {
+  return (
+    <HashRouter>
+      <div className="app-shell">
+        <ScrollToTop />
+        <CustomCursor />
+        <Navbar />
+        <main>
+          <AnimatedRoutes />
+        </main>
+        <Footer />
+        <BackToTop />
+      </div>
+    </HashRouter>
+  );
+}

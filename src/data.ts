@@ -11,6 +11,26 @@ export interface WorkItem {
   title: string;
   creator: string;
   youtubeId: string;
+  category: 'Gaming' | 'Retention Edit' | 'Cinematic' | 'Short Form';
+  views: string;
+  length: string;
+}
+
+export interface CaseStudy {
+  slug: string;
+  title: string;
+  creator: string;
+  avatar: string;
+  tagline: string;
+  discipline: string;
+  duration: string;
+  youtubeId: string;
+  accent: string;
+  challenge: string;
+  approach: string[];
+  results: { label: string; value: string }[];
+  quote: string;
+  quoteAuthor: string;
 }
 
 export interface Testimonial {
@@ -85,28 +105,124 @@ export const CREATORS: Creator[] = [
 
 export const WORKS: WorkItem[] = [
   {
-    id: "work-1",
-    title: "GTA 5, But We Have INFINITE STARS..",
-    creator: "Doodle Arkey Plays",
-    youtubeId: "rJdJbEmO-ko",
+    id: 'work-1',
+    title: 'GTA 5, But We Have INFINITE STARS..',
+    creator: 'Doodle Arkey Plays',
+    youtubeId: 'rJdJbEmO-ko',
+    category: 'Gaming',
+    views: '412K views',
+    length: '14:22',
   },
   {
-    id: "work-2",
-    title: "Surviving 100 Days in a Zombie Apocalypse..",
-    creator: "Doodle Arkey Plays",
-    youtubeId: "Azr4fHfz0vY",
+    id: 'work-2',
+    title: 'Surviving 100 Days in a Zombie Apocalypse..',
+    creator: 'Doodle Arkey Plays',
+    youtubeId: 'Azr4fHfz0vY',
+    category: 'Cinematic',
+    views: '287K views',
+    length: '18:05',
   },
   {
-    id: "work-3",
-    title: "Meccha Chameleon But It’s On The GTA 5 Map..",
-    creator: "Doodle Arkey Plays",
-    youtubeId: "g2qjuV8N7cQ",
+    id: 'work-3',
+    title: 'Meccha Chameleon But It’s On The GTA 5 Map..',
+    creator: 'Doodle Arkey Plays',
+    youtubeId: 'g2qjuV8N7cQ',
+    category: 'Retention Edit',
+    views: '198K views',
+    length: '11:47',
   },
   {
-    id: "work-4",
-    title: "I Rigged a NOOB vs PRO Rivals Tournament..",
-    creator: "MiloBlox",
-    youtubeId: "poqx6LL7iiw",
+    id: 'work-4',
+    title: 'I Rigged a NOOB vs PRO Rivals Tournament..',
+    creator: 'MiloBlox',
+    youtubeId: 'poqx6LL7iiw',
+    category: 'Retention Edit',
+    views: '156K views',
+    length: '12:31',
+  },
+];
+
+export const CASE_STUDIES: CaseStudy[] = [
+  {
+    slug: 'infinite-stars',
+    title: 'Turning a chaotic GTA stunt video into a tight, high-retention story',
+    creator: 'Doodle Arkey Plays',
+    avatar: asset('creator-doodlearkeyplays.jpg'),
+    tagline: 'GTA 5, But We Have INFINITE STARS..',
+    discipline: 'Long-form retention edit · Motion design · Sound design',
+    duration: 'Delivered in 4 days',
+    youtubeId: 'rJdJbEmO-ko',
+    accent: '#2266ff',
+    challenge:
+      'The raw footage was 3+ hours of unstructured mayhem — funny moments buried under dead air. The channel needed an edit that kept viewers locked in past the 8-minute mark without resorting to meme-spam.',
+    approach: [
+      'Mapped every beat on paper first — cut the video into five escalating acts so the payoff always sat one step ahead of the viewer.',
+      'Built custom kinetic typography and animated map overlays in After Effects to replace verbal exposition with visual momentum.',
+      'Layered impact sound design — whooshes, risers, sub hits — on every transition so cuts are felt, not just seen.',
+      'Used speed-ramps and punch-in zooms on reactions to compress dead time while keeping the pacing human.',
+    ],
+    results: [
+      { label: 'Avg. view duration', value: '+38%' },
+      { label: 'Retention @ 8 min', value: '61%' },
+      { label: 'Views in week one', value: '412K' },
+    ],
+    quote:
+      'The edit carried the whole video. People in the comments were talking about the transitions more than the challenge itself.',
+    quoteAuthor: 'Doodle Arkey Plays',
+  },
+  {
+    slug: '100-days-zombie',
+    title: 'A cinematic survival series told like a short film, not a let’s-play',
+    creator: 'Doodle Arkey Plays',
+    avatar: asset('creator-doodlearkeyplays.jpg'),
+    tagline: 'Surviving 100 Days in a Zombie Apocalypse..',
+    discipline: 'Cinematic edit · Color grade · Narrative structure',
+    duration: 'Delivered in 9 days',
+    youtubeId: 'Azr4fHfz0vY',
+    accent: '#8b5cf6',
+    challenge:
+      '“100 days” videos live or die on emotional arc. The brief: make an in-game survival run feel like a film — quiet tension, a real low point, and a payoff that earns its music swell.',
+    approach: [
+      'Restructured the timeline around three acts (setup, collapse, rebuild) instead of day order, moving key scenes to where they hit hardest.',
+      'Applied a teal-and-orange filmic grade with per-act LUT shifts so each chapter has its own visual temperature.',
+      'Scored the edit dynamically — stems ducked under dialogue, swelled on montage — mixed for loudness platform parity.',
+      'Shot real B-roll framing inside the game engine: depth-of-field masks, letterbox moments, slow push-ins.',
+    ],
+    results: [
+      { label: 'Avg. view duration', value: '+52%' },
+      { label: 'Likes per view', value: '1 : 14' },
+      { label: 'Series follow-through', value: '+2.4x' },
+    ],
+    quote:
+      'It genuinely felt like watching a movie. The part where the base falls apart? I got chills the first time I saw the cut.',
+    quoteAuthor: 'Doodle Arkey Plays',
+  },
+  {
+    slug: 'rigged-tournament',
+    title: 'Rigging a Noob vs Pro tournament for maximum comedic timing',
+    creator: 'MiloBlox',
+    avatar: asset('creator-miloblox.jpg'),
+    tagline: 'I Rigged a NOOB vs PRO Rivals Tournament..',
+    discipline: 'Comedy edit · Graphics package · Pacing',
+    duration: 'Delivered in 3 days',
+    youtubeId: 'poqx6LL7iiw',
+    accent: '#f59e0b',
+    challenge:
+      'The concept only works if the audience believes the “rigging.” That meant building a full broadcast layer — scoreboards, sponsor-style lower thirds, instant replays — entirely in post.',
+    approach: [
+      'Designed a cohesive tournament graphics package (bracket cams, stat pop-ups, replay wipes) matched to the channel identity.',
+      'Choreographed the reveal beats: every rig moment got a setup shot, a pause, and a hard cut to reaction.',
+      'Rebuilt audio from scratch — crowd beds, UI pings, dramatic sting on the twist — because the raw mic track couldn’t carry it.',
+      'Cut two alternate endings A/B tested on the community tab before delivery.',
+    ],
+    results: [
+      { label: 'CTR on thumbnail A/B', value: '+21%' },
+      { label: 'Comments per view', value: '3.1x channel avg' },
+      { label: 'Watch time', value: '+44%' },
+    ],
+    quote:
+      'Bro you did an insane job on this — everything looks so clean. The replay graphics made it feel like a real event.',
+    quoteAuthor: 'MiloBlox',
   },
 ];
 
