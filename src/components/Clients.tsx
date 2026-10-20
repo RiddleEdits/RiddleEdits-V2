@@ -1,7 +1,7 @@
 import React from 'react';
 import { ExternalLink } from 'lucide-react';
 import { CREATORS, Creator } from '../data';
-import { FireButton } from './Hero';
+import { FireButton } from './FireButton';
 
 export const Clients: React.FC = () => {
   // Line 1: Top 4 channels by subscriber count
