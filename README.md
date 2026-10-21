@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Kyro Media — portfolio (V3)
 
-# Run and deploy your AI Studio app
+A multi-page video editing portfolio: Vite, React, TypeScript, Tailwind CSS v4 and three.js.
 
-This contains everything you need to run your app locally.
+## Pages
+| URL | What it is |
+| --- | --- |
+| `/` | Home: film-ribbon hero, selected work, results, process, contact call to action |
+| `/work/` | All projects with category filters, plus shorts |
+| `/work/<slug>/` | One page per project with the video embedded |
+| `/case-studies/` | Case study index |
+| `/case-studies/<slug>/` | Overview, challenge, approach, frames, outcome, next |
+| `/contact/` | Contact details and a brief form |
 
-View your app in AI Studio: https://ai.studio/apps/a73dbc97-3208-4f43-9850-32a70fb4862b
+Every URL above is written as its own `index.html` at build time, so direct links and refreshes work on GitHub Pages.
 
-## Run Locally
+## Edit content
+Everything is in `src/data/content.ts`:
+- **Add a project:** add an entry to `PROJECTS` (YouTube ID, title, creator, category, format). Set `featured` to show it on the home page.
+- **Add a case study:** add an entry to `CASE_STUDIES`. Its page and URL are created automatically.
+- **Contact details:** `SITE` (email, Calendly, socials). The form posts to FormSubmit; the first submission sends a one-time confirmation email to that address.
 
-**Prerequisites:**  Node.js
+Only use figures you can verify. Leave a field out and the page simply doesn't show it.
 
+## Develop
+```
+npm ci
+npm run dev        # http://localhost:3000
+npm run build      # production build in dist/
+npm run build:preview  # one self-contained HTML file in preview-dist/
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Deploy
+Pushing to `main` runs `.github/workflows/deploy.yml`. In the repository settings, set **Pages → Source** to **GitHub Actions**.
+The site is built for `https://<user>.github.io/RiddleEdits-V2/`. If you point a custom domain at this repo, change `BASE_PATH` in the workflow to `/`.
