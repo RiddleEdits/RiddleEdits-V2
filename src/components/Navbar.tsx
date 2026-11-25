@@ -1,109 +1,140 @@
-export default function Navbar() {
-  const scrollTo = (id: string) => {
-    const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+import { useEffect, useRef, useState } from 'react';
+import { Menu, X, ChevronDown } from 'lucide-react';
+import { Link, useModals } from '../router';
+import { NICHES, thumb, videosFor, type Niche } from '../data/content';
+import { Button } from './ui';
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
+const LINK = 'rounded-full px-3.5 py-2 text-[14px] font-medium transition-colors';
+
+export function Logo() {
+  return (
+    <Link href="/" aria-label="RiddleEdits home" className="flex items-center gap-2.5">
+      <img src="/riddle.jpg" alt="" width={30} height={30} className="h-[30px] w-[30px] rounded-[9px] object-cover" />
+      <span className="text-[16px] font-semibold tracking-tight text-slate-950">
+        Riddle<span className="text-slate-500">Edits</span>
+      </span>
+    </Link>
+  );
+}
+
+export function Navbar({ path }: { path: string }) {
+  const { openBookCall } = useModals();
+  const [workOpen, setWorkOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const workRef = useRef<HTMLDivElement>(null);
+  const closeTimer = useRef<number | undefined>(undefined);
+
+  useEffect(() => {
+    setWorkOpen(false);
+    setMobileOpen(false);
+  }, [path]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      if (workRef.current && !workRef.current.contains(e.target as Node)) setWorkOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && (setWorkOpen(false), setMobileOpen(false));
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, []);
+
+  const active = (p: string) => path.startsWith(p);
+  const linkCls = (p: string) => `${LINK} ${active(p) ? 'text-[#0066ff] bg-blue-50' : 'text-slate-700 hover:text-slate-950'}`;
 
   return (
-    <nav className="fixed top-2 sm:top-3.5 left-0 right-0 z-50 px-4 sm:px-6 pointer-events-none flex justify-center">
-      <div className="w-full max-w-4xl mx-auto pointer-events-auto flex items-center justify-between glass-heavy rounded-full px-4 sm:px-6 py-3 sm:py-3.5 min-h-[52px] sm:min-h-[64px] gap-2 sm:gap-4">
-        {/* Brand - Left */}
-        <div className="flex-1 flex items-center justify-start">
+    <header className="fixed inset-x-0 top-4 z-40 px-4">
+      <div className="relative mx-auto flex h-14 max-w-[1200px] items-center justify-between rounded-full border border-slate-200/80 bg-white/85 pl-4 pr-2 shadow-[0_10px_30px_-12px_rgba(15,40,100,0.25)] backdrop-blur-xl">
+        <Logo />
+
+        <nav aria-label="Main" className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
           <div
-            onClick={scrollToTop}
-            className="flex items-center gap-2 sm:gap-3 flex-shrink-0 cursor-pointer ml-[12px]"
-            style={{ marginLeft: '12px' }}
-          >
-            <img
-              alt="RiddleEdits"
-              className="w-7 h-7 sm:w-9 sm:h-9 rounded-full object-cover"
-              src={`${import.meta.env.BASE_URL}riddle-avatar.png`}
-              referrerPolicy="no-referrer"
-            />
-            <span className="font-bold text-base text-secondary hidden sm:block">
-              RiddleEdits
-            </span>
-          </div>
-        </div>
-
-        {/* Navigation Links - Center */}
-        <div className="flex items-center justify-center gap-2 sm:gap-6 flex-shrink-0">
-          <a
-            href="#work"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTo('work');
+            ref={workRef}
+            className="relative"
+            onMouseEnter={() => {
+              window.clearTimeout(closeTimer.current);
+              setWorkOpen(true);
             }}
-            className="no-emoji group relative inline-flex items-center justify-center px-2.5 sm:px-3 py-1 sm:py-1 rounded-md text-[11px] sm:text-[13px] font-medium text-[#9AA8AD] no-underline transition-colors duration-200 hover:text-secondary"
-          >
-            <span
-              className="absolute inset-0 rounded-md pointer-events-none opacity-0 scale-95 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-100"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
-            />
-            <span className="relative z-10 leading-none">Work</span>
-          </a>
-          <a
-            href="#testimonials"
-            onClick={(e) => {
-              e.preventDefault();
-              scrollTo('testimonials');
+            onMouseLeave={() => {
+              closeTimer.current = window.setTimeout(() => setWorkOpen(false), 150);
             }}
-            className="no-emoji group relative inline-flex items-center justify-center px-2.5 sm:px-3 py-1 sm:py-1 rounded-md text-[11px] sm:text-[13px] font-medium text-[#9AA8AD] no-underline transition-colors duration-200 hover:text-secondary"
           >
-            <span
-              className="absolute inset-0 rounded-md pointer-events-none opacity-0 scale-95 transition-all duration-200 ease-out group-hover:opacity-100 group-hover:scale-100"
-              style={{ backgroundColor: 'rgba(0, 0, 0, 0.10)' }}
-            />
-            <span className="relative z-10 leading-none">Testimonials</span>
-          </a>
-        </div>
-
-        {/* Header CTA Button - Right */}
-        <div className="flex-1 flex items-center justify-end">
-          <div className="relative inline-flex items-center justify-center mr-[12px]" style={{ marginRight: '12px' }}>
-            <a
-              href="https://x.com/RiddlePlayZz"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="
-                inline-flex items-center justify-center font-semibold uppercase tracking-wider
-                text-white cursor-pointer select-none no-underline relative z-10
-                btn-nav
-                px-6 sm:px-8 py-2 sm:py-2.5 text-[11px] sm:text-[12px] rounded-full gap-2 sm:gap-2.5 whitespace-nowrap min-h-[36px] sm:min-h-[40px]
-              "
-              style={{ minWidth: '155px', paddingLeft: '22px', paddingRight: '22px' }}
-              tabIndex={0}
+            <button
+              type="button"
+              aria-expanded={workOpen}
+              aria-haspopup="true"
+              onClick={() => setWorkOpen((o) => !o)}
+              className={`${linkCls('/work')} inline-flex items-center gap-1`}
             >
-              <div className="absolute inset-0 rounded-full overflow-hidden pointer-events-none">
-                <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              Work <ChevronDown className={`h-3.5 w-3.5 transition-transform ${workOpen ? 'rotate-180' : ''}`} />
+            </button>
+            <div
+              className={`absolute left-1/2 top-full w-[480px] -translate-x-1/2 pt-3 transition-all duration-200 ${
+                workOpen ? 'visible translate-y-0 opacity-100' : 'invisible -translate-y-1 opacity-0'
+              }`}
+            >
+              <div className="grid grid-cols-2 gap-2 rounded-3xl border border-slate-200/80 bg-white p-2 shadow-[0_24px_50px_-20px_rgba(15,40,100,0.35)]">
+                {(Object.keys(NICHES) as Niche[]).map((key) => {
+                  const n = NICHES[key];
+                  return (
+                    <Link key={key} href={n.path} className="group overflow-hidden rounded-2xl transition-colors hover:bg-slate-50">
+                      <div className="aspect-video overflow-hidden rounded-xl bg-slate-200">
+                        <img src={thumb(videosFor(key)[0].id)} alt="" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]" />
+                      </div>
+                      <div className="px-2 pb-2 pt-2.5">
+                        <div className="text-[14px] font-semibold text-slate-900 group-hover:text-[#0066ff]">{n.name}</div>
+                        <div className="text-[12.5px] text-slate-500">{n.formats.join(', ')}</div>
+                      </div>
+                    </Link>
+                  );
+                })}
               </div>
-              <span className="relative z-10 leading-none">Let's cook now!</span>
-              <svg
-                className="relative z-10 flex-shrink-0"
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3 8H13M13 8L9 4M13 8L9 12"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </a>
+            </div>
           </div>
+          <Link href="/case-studies" className={linkCls('/case-studies')}>
+            Case studies
+          </Link>
+          <Link href="/contact" className={linkCls('/contact')}>
+            Contact
+          </Link>
+        </nav>
+
+        <div className="flex items-center gap-1">
+          <Button size="sm" onClick={openBookCall} className="hidden sm:inline-flex">
+            Book a call
+          </Button>
+          <button
+            type="button"
+            onClick={() => setMobileOpen((o) => !o)}
+            aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={mobileOpen}
+            className="flex h-10 w-10 items-center justify-center rounded-full text-slate-700 hover:bg-slate-100 md:hidden"
+          >
+            {mobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+          </button>
         </div>
+
+        {mobileOpen && (
+          <div className="absolute inset-x-0 top-[calc(100%+8px)] rounded-3xl border border-slate-200/80 bg-white p-3 shadow-[0_24px_50px_-20px_rgba(15,40,100,0.35)] md:hidden">
+            {[
+              ['/work/gta', 'GTA work'],
+              ['/work/roblox', 'Roblox work'],
+              ['/case-studies', 'Case studies'],
+              ['/contact', 'Contact']
+            ].map(([href, label]) => (
+              <Link key={href} href={href} className={`block rounded-2xl px-4 py-3 text-[15px] font-medium ${active(href) ? 'bg-blue-50 text-[#0066ff]' : 'text-slate-800 hover:bg-slate-50'}`}>
+                {label}
+              </Link>
+            ))}
+            <Button onClick={openBookCall} className="mt-2 w-full">
+              Book a call
+            </Button>
+          </div>
+        )}
       </div>
-    </nav>
+    </header>
   );
 }

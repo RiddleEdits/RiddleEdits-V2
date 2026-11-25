@@ -1,55 +1,82 @@
-import type { ReactNode } from 'react';
-import { useEffect } from 'react';
-import { RouterProvider, useRouter } from './router';
-import { Navbar, Footer } from './components/Chrome';
-import { HomePage } from './pages/HomePage';
-import { WorkPage, ProjectPage } from './pages/WorkPages';
-import { CaseStudiesPage, CaseStudyPage } from './pages/CaseStudyPages';
-import { ContactPage } from './pages/ContactPage';
-import { NotFound } from './pages/NotFound';
-import { caseStudyBySlug, projectBySlug } from './data/content';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ModalContext, usePath } from './router';
+import { Navbar } from './components/Navbar';
+import { Hero } from './components/Hero';
+import { Niches } from './components/Niches';
+import { Stats, Testimonials } from './components/Proof';
+import { GtaCaseStudy } from './components/GtaCaseStudy';
+import { Faqs } from './components/Faqs';
+import { CallToAction } from './components/CallToAction';
+import { Footer } from './components/Footer';
+import { NichePage } from './components/NichePage';
+import { CaseStudiesPage } from './components/CaseStudiesPage';
+import { ContactPage } from './components/ContactPage';
+import { BookCallModal, VideoModal } from './components/Modals';
+import { SectionHeading } from './components/ui';
 
-function resolve(path: string): { page: ReactNode; title: string } {
-  const parts = path.split('/').filter(Boolean);
-  if (parts.length === 0) return { page: <HomePage />, title: 'Kyro Media · Editor behind tech and Minecraft channels' };
-  if (parts[0] === 'work') {
-    if (parts.length === 1) return { page: <WorkPage />, title: 'Selected Work · Kyro Media' };
-    const p = projectBySlug(parts[1]);
-    if (p) return { page: <ProjectPage slug={p.slug} />, title: `${p.title} · Kyro Media` };
-  }
-  if (parts[0] === 'case-studies') {
-    if (parts.length === 1) return { page: <CaseStudiesPage />, title: 'Case Studies · Kyro Media' };
-    const c = caseStudyBySlug(parts[1]);
-    if (c) return { page: <CaseStudyPage slug={c.slug} />, title: `${c.creator} case study · Kyro Media` };
-  }
-  if (parts[0] === 'contact' && parts.length === 1) return { page: <ContactPage />, title: 'Contact · Kyro Media' };
-  return { page: <NotFound />, title: 'Not found · Kyro Media' };
-}
+const TITLES: Record<string, string> = {
+  '/': 'RiddleEdits · Video editor for GTA and Roblox creators',
+  '/work/gta': 'GTA editing · RiddleEdits',
+  '/work/roblox': 'Roblox editing · RiddleEdits',
+  '/case-studies': 'Case studies · RiddleEdits',
+  '/contact': 'Contact · RiddleEdits'
+};
 
-function Page() {
-  const { path } = useRouter();
-  const { page, title } = resolve(path);
-  useEffect(() => {
-    document.title = title;
-  }, [title]);
+function Home() {
   return (
-    <div key={path} className="page-in">
-      {page}
-    </div>
+    <>
+      <Hero />
+      <Niches />
+      <Stats />
+      <GtaCaseStudy heading={<SectionHeading eyebrow="Case study" title="Three months with Doodle Arkey Plays." />} />
+      <Testimonials />
+      <Faqs />
+    </>
   );
 }
 
 export default function App() {
+  const path = usePath();
+  const [video, setVideo] = useState<{ id: string; title: string } | null>(null);
+  const [bookCall, setBookCall] = useState(false);
+
+  const modals = useMemo(
+    () => ({
+      openVideo: (id: string, title: string) => setVideo({ id, title }),
+      openBookCall: () => setBookCall(true)
+    }),
+    []
+  );
+  const closeVideo = useCallback(() => setVideo(null), []);
+  const closeBookCall = useCallback(() => setBookCall(false), []);
+
+  useEffect(() => {
+    document.title = TITLES[path] ?? TITLES['/'];
+  }, [path]);
+
+  // Scroll to #section on first load (e.g. /case-studies#miloblox)
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (id) setTimeout(() => document.getElementById(id)?.scrollIntoView(), 150);
+  }, []);
+
+  let page;
+  if (path === '/work/gta') page = <NichePage key="gta" niche="gta" />;
+  else if (path === '/work/roblox') page = <NichePage key="roblox" niche="roblox" />;
+  else if (path === '/case-studies') page = <CaseStudiesPage />;
+  else if (path === '/contact') page = <ContactPage />;
+  else page = <Home />;
+
   return (
-    <RouterProvider>
-      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[60] focus:rounded focus:bg-white focus:px-4 focus:py-2">
-        Skip to content
-      </a>
-      <Navbar />
-      <main id="main">
-        <Page />
+    <ModalContext.Provider value={modals}>
+      <Navbar path={path} />
+      <main>
+        {page}
+        {path !== '/contact' && <CallToAction />}
       </main>
       <Footer />
-    </RouterProvider>
+      {video && <VideoModal video={video} onClose={closeVideo} />}
+      {bookCall && <BookCallModal onClose={closeBookCall} />}
+    </ModalContext.Provider>
   );
 }

@@ -1,35 +1,38 @@
-# Kyro Media — portfolio (V3)
+# RiddleEdits
 
-A multi-page video editing portfolio: Vite, React, TypeScript, Tailwind CSS v4 and three.js.
+Portfolio site for RiddleEdits, a video editor for GTA and Roblox YouTube creators.
+React 19, Vite and Tailwind CSS 4. There's no backend.
+
+## Run it
+
+```bash
+npm install
+npm run dev      # local dev server
+npm run build    # production build in dist/
+npm run lint     # type check
+```
+
+## Editing content
+
+Everything the site says lives in **`src/data/content.ts`**:
+
+- `SITE`: email, Calendly link, socials
+- `CREATORS`: channels, subscriber counts, avatars (files in `public/creators/`)
+- `VIDEOS`: every video on the site with its views, length and likes. The homepage stats are calculated from these numbers.
+- `NICHES`: copy and FAQs for the GTA and Roblox pages
+- `TESTIMONIALS`, `CASE_STUDIES`
+
+The month-by-month numbers in the Doodle Arkey Plays case study are in `src/components/GtaCaseStudy.tsx`.
 
 ## Pages
-| URL | What it is |
+
+| Path | Component |
 | --- | --- |
-| `/` | Home: film-ribbon hero, selected work, results, process, contact call to action |
-| `/work/` | All projects with category filters, plus shorts |
-| `/work/<slug>/` | One page per project with the video embedded |
-| `/case-studies/` | Case study index |
-| `/case-studies/<slug>/` | Overview, challenge, approach, frames, outcome, next |
-| `/contact/` | Contact details and a brief form |
+| `/` | `App.tsx` → `Home` |
+| `/work/gta`, `/work/roblox` | `NichePage` |
+| `/case-studies` (with `#doodle-arkey-plays`, `#miloblox`, `#kwil`) | `CaseStudiesPage` |
+| `/contact` | `ContactPage` |
 
-Every URL above is written as its own `index.html` at build time, so direct links and refreshes work on GitHub Pages.
+Routing is client-side, so the host must serve `index.html` for every path. Vercel and Netlify do this for Vite apps. On other hosts, add a rewrite to `/index.html`.
 
-## Edit content
-Everything is in `src/data/content.ts`:
-- **Add a project:** add an entry to `PROJECTS` (YouTube ID, title, creator, category, format). Set `featured` to show it on the home page.
-- **Add a case study:** add an entry to `CASE_STUDIES`. Its page and URL are created automatically.
-- **Contact details:** `SITE` (email, Calendly, socials). The form posts to FormSubmit; the first submission sends a one-time confirmation email to that address.
-
-Only use figures you can verify. Leave a field out and the page simply doesn't show it.
-
-## Develop
-```
-npm ci
-npm run dev        # http://localhost:3000
-npm run build      # production build in dist/
-npm run build:preview  # one self-contained HTML file in preview-dist/
-```
-
-## Deploy
-Pushing to `main` runs `.github/workflows/deploy.yml`. In the repository settings, set **Pages → Source** to **GitHub Actions**.
-The site is built for `https://<user>.github.io/RiddleEdits-V2/`. If you point a custom domain at this repo, change `BASE_PATH` in the workflow to `/`.
+The contact form opens the visitor's email app with the message filled in. Bookings go through Calendly.

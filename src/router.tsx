@@ -1,90 +1,66 @@
-import { createContext, useCallback, useContext, useEffect, useState, type AnchorHTMLAttributes, type ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
-/**
- * A small client-side router. Each URL also exists as a real index.html (see vite.config.ts),
- * so direct links and refreshes load the right page on GitHub Pages.
- */
+const EVENT = 'app:navigate';
 
-const RAW_BASE = import.meta.env.BASE_URL;
-/** "/RiddleEdits-V2/" in production, "/" in dev. A relative base (single-file preview) acts like "/". */
-export const BASE = RAW_BASE.startsWith('/') ? RAW_BASE : '/';
-
-const withSlash = (p: string) => (p.endsWith('/') ? p : `${p}/`);
-
-/** Browser pathname → app path like "/work/some-slug/". */
-function toAppPath(pathname: string) {
-  if (!RAW_BASE.startsWith('/')) return '/';
-  const p = pathname.replace(/index\.html$/, '');
-  if (!p.toLowerCase().startsWith(BASE.toLowerCase())) return '/';
-  return withSlash('/' + p.slice(BASE.length));
+export function navigate(to: string) {
+  if (to === window.location.pathname + window.location.hash) return;
+  window.history.pushState(null, '', to);
+  window.dispatchEvent(new Event(EVENT));
 }
 
-/** App path → real href including the base. */
-export const href = (to: string) => {
-  const [path, hash] = to.split('#');
-  const clean = path === '/' ? '' : withSlash(path).replace(/^\//, '');
-  return `${BASE}${clean}${hash ? `#${hash}` : ''}`;
-};
-
-interface RouterValue {
-  path: string;
-  navigate: (to: string) => void;
+function scrollForLocation() {
+  const hash = window.location.hash.slice(1);
+  requestAnimationFrame(() => {
+    const el = hash ? document.getElementById(hash) : null;
+    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    else window.scrollTo({ top: 0 });
+  });
 }
 
-const Ctx = createContext<RouterValue>({ path: '/', navigate: () => {} });
-
-function scrollToHash(hash: string) {
-  const el = hash ? document.getElementById(hash) : null;
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  else window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior });
-}
-
-export function RouterProvider({ children }: { children: ReactNode }) {
-  const [path, setPath] = useState(() => toAppPath(window.location.pathname));
-
+/** Current pathname, normalised without a trailing slash. */
+export function usePath() {
+  const read = () => window.location.pathname.replace(/\/+$/, '') || '/';
+  const [path, setPath] = useState(read);
   useEffect(() => {
-    const onPop = () => setPath(toAppPath(window.location.pathname));
+    const onNav = () => {
+      setPath(read());
+      scrollForLocation();
+    };
+    const onPop = () => setPath(read());
+    window.addEventListener(EVENT, onNav);
     window.addEventListener('popstate', onPop);
-    if (window.location.hash) setTimeout(() => scrollToHash(window.location.hash.slice(1)), 250);
-    return () => window.removeEventListener('popstate', onPop);
+    return () => {
+      window.removeEventListener(EVENT, onNav);
+      window.removeEventListener('popstate', onPop);
+    };
   }, []);
-
-  const navigate = useCallback(
-    (to: string) => {
-      const [p, hash = ''] = to.split('#');
-      const next = withSlash(p || path);
-      if (next !== path) {
-        try {
-          window.history.pushState(null, '', href(to));
-        } catch {
-          // sandboxed previews and file:// refuse URL changes; the page still switches
-        }
-        setPath(next);
-        setTimeout(() => scrollToHash(hash), hash ? 150 : 0);
-      } else {
-        scrollToHash(hash);
-      }
-    },
-    [path],
-  );
-
-  return <Ctx.Provider value={{ path, navigate }}>{children}</Ctx.Provider>;
+  return path;
 }
 
-export const useRouter = () => useContext(Ctx);
-
-export function Link({ to, onClick, ...rest }: { to: string } & AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const { navigate } = useRouter();
+/** <a> that navigates in-app for internal paths and opens a new tab for external ones. */
+export function Link({ href, children, onClick, ...rest }: React.AnchorHTMLAttributes<HTMLAnchorElement> & { href: string }) {
+  const external = /^(https?:|mailto:)/.test(href);
   return (
     <a
-      href={href(to)}
+      href={href}
+      {...(external && !href.startsWith('mailto:') ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
       onClick={(e) => {
         onClick?.(e);
-        if (e.defaultPrevented || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        if (e.defaultPrevented || external || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
         e.preventDefault();
-        navigate(to);
+        navigate(href);
       }}
       {...rest}
-    />
+    >
+      {children}
+    </a>
   );
 }
+
+interface Modals {
+  openVideo: (id: string, title: string) => void;
+  openBookCall: () => void;
+}
+
+export const ModalContext = createContext<Modals>({ openVideo: () => {}, openBookCall: () => {} });
+export const useModals = () => useContext(ModalContext);
